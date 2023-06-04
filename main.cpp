@@ -58,10 +58,15 @@ struct student_info {
   double average;
 
   student_info() {
-    std::clog << "student_info::" << __func__ << "() default c'tor\n"s;
+    std::clog << "[@" << this 
+              << "] student_info::" << __func__
+              << "() default c'tor\n"s;
   }
+  virtual
   ~student_info() {
-    std::clog << "student_info::" << __func__ << "() d'tor\n"s;
+    std::clog << "[@" << this
+              << "] student_info::" << __func__
+              << "() d'tor\n"s;
   }
 };
 
