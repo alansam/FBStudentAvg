@@ -1,5 +1,7 @@
-         Barrett            Edan 70 45 59 F 58.00
-        Bradshaw          Reagan 96 97 88 A 93.67
-        Charlton           Caius 73 94 80 B 82.33
-            Mayo          Tyrese 88 61 36 D 61.67
-           Stern          Brenda 90 86 45 C 73.67
+         Barrett            Edan 70 45 59 F (Avg:  58.00)
+        Bradshaw          Reagan 96 97 88 A (Avg:  93.67)
+        Charlton           Caius 73 94 80 B (Avg:  82.33)
+            Mayo          Tyrese 88 61 36 D (Avg:  61.67)
+           Stern          Brenda 90 86 45 C (Avg:  73.67)
+
+Exam averages:  83.40 76.60 61.60

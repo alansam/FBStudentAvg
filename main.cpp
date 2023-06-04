@@ -94,6 +94,10 @@ void get_data(std::vector<std::unique_ptr<student_info>> & siv, std::string cons
  *  MARK:  report()
  */
 void report(std::vector<std::unique_ptr<student_info>> const & siv, std::string const & rpt_nm) {
+  std::vector<double> m1;
+  std::vector<double> m2;
+  std::vector<double> finl;
+
   std::ofstream rpt(rpt_nm);
   if (rpt.is_open()) {
     for (auto const & spi : siv) {
@@ -104,9 +108,25 @@ void report(std::vector<std::unique_ptr<student_info>> const & siv, std::string 
           << std::setw(3) << spi->score[scores::m2]
           << std::setw(3) << spi->score[scores::finl]
           << std::setw(2) << spi->grade
+          << " (Avg: "s
           << std::setw(6) << spi->average
+          << ")"s
           << '\n';
+      m1.push_back(1.0 * spi->score[scores::m1]);
+      m2.push_back(1.0 * spi->score[scores::m2]);
+      finl.push_back(1.0 * spi->score[scores::finl]);
     }
+    rpt << '\n';
+
+    auto examavg = [](auto const & exm) {
+      return std::reduce(exm.cbegin(), exm.cend()) / (1.0 * exm.size());
+    };
+
+    rpt << "Exam averages: "s
+        << std::setw(6) << examavg(m1)
+        << std::setw(6) << examavg(m2)
+        << std::setw(6) << examavg(finl)
+        << '\n';
 
     rpt.close();
   }
@@ -163,7 +183,9 @@ int main() {
               << std::setw(3) << spi->score[scores::m2]
               << std::setw(3) << spi->score[scores::finl]
               << std::setw(2) << spi->grade
+              << " (Avg:"s
               << std::setw(8) << spi->average
+              << ")"s
               << '\n';
   });
 
