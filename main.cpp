@@ -49,7 +49,15 @@ I’ve been working on this for a little while now, and I can get it to write to
 
 using namespace std::literals::string_literals;
 
+//  MARK: - Definitions.
+/*
+ *  MARK:  enum scores
+ */
 enum scores : size_t { m1, m2, finl, };
+
+/*
+ *  MARK:  struct student_info
+ */
 struct student_info {
   std::string name_last;
   std::string name_first;
@@ -70,8 +78,8 @@ struct student_info {
   }
 };
 
-std::string student_info_fn_dflt = "studentinfo.tsv"s;
-std::string reportfn_dflt = "report.txt"s;
+std::string const student_info_fn_dflt { "studentinfo.tsv"s };
+std::string const reportfn_dflt { "report.txt"s };
 
 /*
  *  MARK:  get_data()
@@ -99,42 +107,47 @@ void get_data(std::vector<std::unique_ptr<student_info>> & siv, std::string cons
  *  MARK:  report()
  */
 void report(std::vector<std::unique_ptr<student_info>> const & siv, std::string const & rpt_nm) {
-  std::vector<double> m1;
-  std::vector<double> m2;
-  std::vector<double> finl;
-
   std::ofstream rpt(rpt_nm);
   if (rpt.is_open()) {
+    auto m1   { 0.0 };
+    auto m2   { 0.0 };
+    auto finl { 0.0 };
+
     for (auto const & spi : siv) {
       rpt << std::fixed << std::setprecision(2);
       rpt << std::setw(16) << spi->name_last
           << std::setw(16) << spi->name_first
-          << std::setw(3) << spi->score[scores::m1]
-          << std::setw(3) << spi->score[scores::m2]
-          << std::setw(3) << spi->score[scores::finl]
-          << std::setw(2) << spi->grade
+          << std::setw( 3) << spi->score[scores::m1]
+          << std::setw( 3) << spi->score[scores::m2]
+          << std::setw( 3) << spi->score[scores::finl]
+          << std::setw( 2) << spi->grade
           << " (Avg: "s
-          << std::setw(6) << spi->average
+          << std::setw( 6) << spi->average
           << ")"s
           << '\n';
-      m1.push_back(1.0 * spi->score[scores::m1]);
-      m2.push_back(1.0 * spi->score[scores::m2]);
-      finl.push_back(1.0 * spi->score[scores::finl]);
+
+      //  accumulate scores for each midterm & final
+      m1   += spi->score[scores::m1];
+      m2   += spi->score[scores::m2];
+      finl += spi->score[scores::finl];
     }
     rpt << '\n';
 
-    auto examavg = [](auto const & exm) {
-      return std::reduce(exm.cbegin(), exm.cend()) / (1.0 * exm.size());
+    //  calculator for midterm averages
+    auto constexpr examavg = [](auto const exm, auto const exm_sz) {
+      return exm / static_cast<double>(exm_sz);
     };
 
+    //  report midterm & final averages
     rpt << "Exam averages: "s
-        << std::setw(6) << examavg(m1)
-        << std::setw(6) << examavg(m2)
-        << std::setw(6) << examavg(finl)
+        << std::setw(6) << examavg(m1, siv.size())
+        << std::setw(6) << examavg(m2, siv.size())
+        << std::setw(6) << examavg(finl, siv.size())
         << '\n';
 
     rpt.close();
   }
+
   return;
 }
 /*
@@ -144,7 +157,11 @@ int main() {
   std::cout << "FB.StudentAvg\n"s;
 
   std::vector<std::unique_ptr<student_info>> siv;
+
+  //  read student data
   get_data(siv, student_info_fn_dflt);
+
+  //  show input
   for (auto const & spi : siv) {
     std::cout << spi->name_last
               << ' '
@@ -158,42 +175,46 @@ int main() {
               << '\n';
   }
 
-  std::for_each(siv.begin(), siv.end(), [](auto & spi) {
+  //  calculator for grade letter
+  auto constexpr grady = [](auto avg) {
+                                      // grade letter scale:
+    auto grade = (avg >= 90.0) ? 'A'  //  A: 90 =< x
+               : (avg >= 80.0) ? 'B'  //  B: 80 =< x < 90
+               : (avg >= 70.0) ? 'C'  //  C: 70 =< x < 80
+               : (avg >= 60.0) ? 'D'  //  D: 60 =< x < 70
+               : 'F';                 //  F: x < 60
+    return grade;
+  };
+
+  //  resolve grade average and letter for each student
+  std::for_each(siv.begin(), siv.end(), [&grady](auto & spi) {
     auto sc = std::vector<double> {
-      1.0 * spi->score[scores::m1],
-      1.0 * spi->score[scores::m2],
-      1.0 * spi->score[scores::finl], };
-    auto avg = std::reduce(sc.begin(), sc.end()) / sc.size();
-    std::cout << std::fixed << std::setprecision(3);
-    auto grady = [](auto avg) {
-      /*
-        A: 90 =< x
-        B: 80 =< x < 90
-        C: 70 =< x < 80
-        D: 60 =< x < 70
-        F: x < 60
-       */
-      auto grade = (avg >= 90.0) ? 'A'
-                 : (avg >= 80.0) ? 'B'
-                 : (avg >= 70.0) ? 'C'
-                 : (avg >= 60.0) ? 'D'
-                 : 'F';
-      return grade;
+      static_cast<double>(spi->score[scores::m1]),
+      static_cast<double>(spi->score[scores::m2]),
+      static_cast<double>(spi->score[scores::finl]),
     };
+
+    //  calculate results average
+    auto const avg = std::reduce(sc.begin(), sc.end()) / static_cast<double>(sc.size());
+
     spi->grade = grady(avg);
     spi->average = avg;
+
+    //  show results
+    std::cout << std::fixed << std::setprecision(3);
     std::cout << std::setw(16) << spi->name_last
               << std::setw(16) << spi->name_first
-              << std::setw(3) << spi->score[scores::m1]
-              << std::setw(3) << spi->score[scores::m2]
-              << std::setw(3) << spi->score[scores::finl]
-              << std::setw(2) << spi->grade
+              << std::setw( 3) << spi->score[scores::m1]
+              << std::setw( 3) << spi->score[scores::m2]
+              << std::setw( 3) << spi->score[scores::finl]
+              << std::setw( 2) << spi->grade
               << " (Avg:"s
-              << std::setw(8) << spi->average
+              << std::setw( 8) << spi->average
               << ")"s
               << '\n';
   });
 
+  //  generate report
   report(siv, reportfn_dflt);
 
   return 0;
