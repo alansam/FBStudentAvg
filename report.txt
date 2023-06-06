@@ -4,4 +4,4 @@
             Mayo          Tyrese 88 61 36 D (Avg:  61.67)
            Stern          Brenda 90 86 45 C (Avg:  73.67)
 
-Exam averages:  83.40 76.60 61.60
+Averages: midterm1  83.40, midterm2  76.60, final  61.60

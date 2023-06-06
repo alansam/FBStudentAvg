@@ -28,7 +28,9 @@
  * report.txt. Output one student per row and separate
  * the values with a tab character.
  * Output the average of each exam, with two digits after
- * the decimal point, at the end of report.txt. Hint: Use  * the setprecision manipulator to format the output.
+ * the decimal point, at the end of report.txt.
+ * Hint: Use the std::setprecision manipulator to format
+ * the output.
  * Ex: If the input of the program is:
  *
  * StudentInfo.tsv
@@ -156,9 +158,12 @@ void report(std::vector<std::unique_ptr<student_info>> const & siv, std::string 
     };
 
     //  report midterm & final averages
-    rpt << "Exam averages: "s
+    rpt << "Averages: "s
+        << "midterm1 "s
         << std::setw(6) << examavg(m1, siv.size())
+        << ", midterm2 "s
         << std::setw(6) << examavg(m2, siv.size())
+        << ", final "s
         << std::setw(6) << examavg(finl, siv.size())
         << '\n';
 
